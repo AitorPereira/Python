@@ -1,0 +1,5 @@
+#this is an example of a textfile
+
+This is an example of a textfile
+that has 2 lines of text.
+This is the third line of the text
