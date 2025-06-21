@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Mario Browser Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #87CEEB, #98FB98);
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        #game-container {
+            border: 3px solid #333;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            background: #87CEEB;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-top: 20px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 600px;
+            width: 800px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div id="game-container">
+            <div class="loading">Loading Game...</div>
+        </div>
+        <div class="controls">
+            <p>Controls: A/D or ←/→ to move, SPACE or W to jump</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/kaboom@3000.0.1/dist/kaboom.js"></script>
+    <script>
+        // Simple game without Kaboom.js as fallback
+        function createSimpleGame() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1200;
+            canvas.height = 600;
+            canvas.style.display = 'block';
+            
+            const ctx = canvas.getContext('2d');
+            const container = document.querySelector("#game-container");
+            container.innerHTML = '';
+            container.appendChild(canvas);
+            
+            // Game state
+            let player = { x: 100, y: 300, width: 32, height: 32, vx: 0, vy: 0, health: 3, invulnerable: 0 };
+            let platforms = [
+                // Ground platform (expanded to full width)
+                { x: 0, y: 560, width: 1200, height: 40, type: 'normal' },
+                
+                // First level platforms
+                { x: 200, y: 450, width: 120, height: 20, type: 'normal' },
+                { x: 400, y: 350, width: 120, height: 20, type: 'normal' },
+                { x: 600, y: 250, width: 120, height: 20, type: 'normal' },
+                { x: 300, y: 150, width: 120, height: 20, type: 'normal' },
+                
+                // Additional platforms for more exploration
+                { x: 50, y: 400, width: 100, height: 20, type: 'normal' },
+                { x: 650, y: 400, width: 100, height: 20, type: 'normal' },
+                { x: 150, y: 300, width: 100, height: 20, type: 'normal' },
+                { x: 550, y: 300, width: 100, height: 20, type: 'normal' },
+                { x: 250, y: 200, width: 100, height: 20, type: 'normal' },
+                { x: 450, y: 200, width: 100, height: 20, type: 'normal' },
+                { x: 350, y: 100, width: 100, height: 20, type: 'normal' },
+                { x: 150, y: 50, width: 100, height: 20, type: 'normal' },
+                { x: 550, y: 50, width: 100, height: 20, type: 'normal' },
+                
+                // Floating platforms for advanced jumping
+                { x: 0, y: 350, width: 80, height: 20, type: 'normal' },
+                { x: 720, y: 350, width: 80, height: 20, type: 'normal' },
+                { x: 100, y: 250, width: 80, height: 20, type: 'normal' },
+                { x: 620, y: 250, width: 80, height: 20, type: 'normal' },
+                { x: 200, y: 150, width: 80, height: 20, type: 'normal' },
+                { x: 520, y: 150, width: 80, height: 20, type: 'normal' },
+                { x: 300, y: 50, width: 80, height: 20, type: 'normal' },
+                { x: 420, y: 50, width: 80, height: 20, type: 'normal' },
+                
+                // High platforms for challenge
+                { x: 50, y: 100, width: 60, height: 20, type: 'normal' },
+                { x: 690, y: 100, width: 60, height: 20, type: 'normal' },
+                { x: 200, y: 0, width: 60, height: 20, type: 'normal' },
+                { x: 540, y: 0, width: 60, height: 20, type: 'normal' },
+                
+                // NEW: Extended platforms to the right
+                { x: 800, y: 450, width: 120, height: 20, type: 'normal' },
+                { x: 1000, y: 350, width: 120, height: 20, type: 'normal' },
+                { x: 900, y: 250, width: 120, height: 20, type: 'normal' },
+                { x: 1100, y: 150, width: 120, height: 20, type: 'normal' },
+                { x: 850, y: 100, width: 100, height: 20, type: 'normal' },
+                { x: 1050, y: 50, width: 100, height: 20, type: 'normal' },
+                { x: 950, y: 0, width: 80, height: 20, type: 'normal' },
+                
+                // Additional right-side platforms
+                { x: 750, y: 400, width: 100, height: 20, type: 'normal' },
+                { x: 950, y: 400, width: 100, height: 20, type: 'normal' },
+                { x: 850, y: 300, width: 100, height: 20, type: 'normal' },
+                { x: 1050, y: 300, width: 100, height: 20, type: 'normal' },
+                { x: 800, y: 200, width: 100, height: 20, type: 'normal' },
+                { x: 1000, y: 200, width: 100, height: 20, type: 'normal' },
+                { x: 900, y: 100, width: 100, height: 20, type: 'normal' },
+                { x: 1100, y: 100, width: 100, height: 20, type: 'normal' },
+                
+                // Floating platforms on the right
+                { x: 780, y: 350, width: 80, height: 20, type: 'normal' },
+                { x: 980, y: 350, width: 80, height: 20, type: 'normal' },
+                { x: 880, y: 250, width: 80, height: 20, type: 'normal' },
+                { x: 1080, y: 250, width: 80, height: 20, type: 'normal' },
+                { x: 830, y: 150, width: 80, height: 20, type: 'normal' },
+                { x: 1030, y: 150, width: 80, height: 20, type: 'normal' },
+                { x: 930, y: 50, width: 80, height: 20, type: 'normal' },
+                { x: 1130, y: 50, width: 80, height: 20, type: 'normal' },
+                
+                // COMPLEX: Moving platforms
+                { x: 400, y: 500, width: 100, height: 20, type: 'moving', startY: 500, endY: 400, speed: 1, direction: 1 },
+                { x: 700, y: 300, width: 100, height: 20, type: 'moving', startY: 300, endY: 200, speed: 1.5, direction: 1 },
+                { x: 1000, y: 400, width: 100, height: 20, type: 'moving', startY: 400, endY: 300, speed: 2, direction: 1 },
+                
+                // COMPLEX: Breakable platforms
+                { x: 300, y: 350, width: 80, height: 20, type: 'breakable', health: 3 },
+                { x: 500, y: 250, width: 80, height: 20, type: 'breakable', health: 2 },
+                { x: 800, y: 150, width: 80, height: 20, type: 'breakable', health: 3 },
+                
+                // COMPLEX: Bouncy platforms
+                { x: 150, y: 450, width: 80, height: 20, type: 'bouncy' },
+                { x: 450, y: 350, width: 80, height: 20, type: 'bouncy' },
+                { x: 750, y: 250, width: 80, height: 20, type: 'bouncy' },
+                { x: 1050, y: 150, width: 80, height: 20, type: 'bouncy' }
+            ];
+            
+            // COMPLEX: Enemies
+            let enemies = [
+                { x: 300, y: 520, width: 24, height: 24, vx: -2, vy: 0, type: 'patrol', startX: 200, endX: 400 },
+                { x: 600, y: 520, width: 24, height: 24, vx: 2, vy: 0, type: 'patrol', startX: 500, endX: 700 },
+                { x: 900, y: 520, width: 24, height: 24, vx: -1.5, vy: 0, type: 'patrol', startX: 800, endX: 1000 },
+                { x: 400, y: 320, width: 24, height: 24, vx: 0, vy: 0, type: 'jumping', jumpTimer: 0 },
+                { x: 700, y: 220, width: 24, height: 24, vx: 0, vy: 0, type: 'jumping', jumpTimer: 30 },
+                { x: 1000, y: 120, width: 24, height: 24, vx: 0, vy: 0, type: 'jumping', jumpTimer: 60 }
+            ];
+            
+            // COMPLEX: Power-ups
+            let powerUps = [
+                { x: 250, y: 420, width: 20, height: 20, type: 'health', collected: false },
+                { x: 650, y: 220, width: 20, height: 20, type: 'speed', collected: false },
+                { x: 950, y: 120, width: 20, height: 20, type: 'jump', collected: false },
+                { x: 450, y: 320, width: 20, height: 20, type: 'shield', collected: false }
+            ];
+            
+            let coins = [
+                { x: 250, y: 420, width: 20, height: 20, collected: false },
+                { x: 450, y: 320, width: 20, height: 20, collected: false },
+                { x: 650, y: 220, width: 20, height: 20, collected: false },
+                
+                // Additional coins scattered around
+                { x: 100, y: 370, width: 20, height: 20, collected: false },
+                { x: 700, y: 370, width: 20, height: 20, collected: false },
+                { x: 200, y: 270, width: 20, height: 20, collected: false },
+                { x: 600, y: 270, width: 20, height: 20, collected: false },
+                { x: 300, y: 170, width: 20, height: 20, collected: false },
+                { x: 500, y: 170, width: 20, height: 20, collected: false },
+                { x: 400, y: 70, width: 20, height: 20, collected: false },
+                { x: 200, y: 20, width: 20, height: 20, collected: false },
+                { x: 580, y: 20, width: 20, height: 20, collected: false },
+                { x: 80, y: 70, width: 20, height: 20, collected: false },
+                { x: 720, y: 70, width: 20, height: 20, collected: false },
+                
+                // NEW: Coins on the extended right side
+                { x: 850, y: 420, width: 20, height: 20, collected: false },
+                { x: 1050, y: 320, width: 20, height: 20, collected: false },
+                { x: 950, y: 220, width: 20, height: 20, collected: false },
+                { x: 1150, y: 120, width: 20, height: 20, collected: false },
+                { x: 900, y: 70, width: 20, height: 20, collected: false },
+                { x: 1100, y: 20, width: 20, height: 20, collected: false },
+                { x: 800, y: 370, width: 20, height: 20, collected: false },
+                { x: 1000, y: 370, width: 20, height: 20, collected: false },
+                { x: 900, y: 270, width: 20, height: 20, collected: false },
+                { x: 1100, y: 270, width: 20, height: 20, collected: false },
+                { x: 850, y: 170, width: 20, height: 20, collected: false },
+                { x: 1050, y: 170, width: 20, height: 20, collected: false },
+                { x: 950, y: 70, width: 20, height: 20, collected: false },
+                { x: 1150, y: 70, width: 20, height: 20, collected: false },
+                { x: 830, y: 320, width: 20, height: 20, collected: false },
+                { x: 1030, y: 220, width: 20, height: 20, collected: false },
+                { x: 930, y: 120, width: 20, height: 20, collected: false },
+                { x: 1130, y: 20, width: 20, height: 20, collected: false }
+            ];
+            let score = 0;
+            let keys = {};
+            
+            // COMPLEX: Player power-up states
+            let playerPowerUps = {
+                speedBoost: 0,
+                jumpBoost: 0,
+                shield: 0
+            };
+            
+            // Input handling
+            document.addEventListener('keydown', (e) => {
+                keys[e.key] = true;
+            });
+            
+            document.addEventListener('keyup', (e) => {
+                keys[e.key] = false;
+            });
+            
+            // Collision detection
+            function checkCollision(rect1, rect2) {
+                return rect1.x < rect2.x + rect2.width &&
+                       rect1.x + rect1.width > rect2.x &&
+                       rect1.y < rect2.y + rect2.height &&
+                       rect1.y + rect1.height > rect2.y;
+            }
+            
+            // Game loop
+            function gameLoop() {
+                // Clear canvas
+                ctx.fillStyle = '#87CEEB';
+                ctx.fillRect(0, 0, 1200, 600);
+                
+                // Handle input
+                let moveSpeed = 5;
+                if (playerPowerUps.speedBoost > 0) moveSpeed = 8;
+                
+                if (keys['a'] || keys['A'] || keys['ArrowLeft']) {
+                    player.vx = -moveSpeed;
+                } else if (keys['d'] || keys['D'] || keys['ArrowRight']) {
+                    player.vx = moveSpeed;
+                } else {
+                    player.vx = 0;
+                }
+                
+                let jumpForce = -15;
+                if (playerPowerUps.jumpBoost > 0) jumpForce = -20;
+                
+                if ((keys['w'] || keys['W'] || keys[' ']) && player.vy === 0) {
+                    player.vy = jumpForce;
+                }
+                
+                // Update player
+                player.x += player.vx;
+                player.y += player.vy;
+                player.vy += 0.8; // Gravity
+                
+                // Update invulnerability
+                if (player.invulnerable > 0) {
+                    player.invulnerable--;
+                }
+                
+                // Update power-ups
+                if (playerPowerUps.speedBoost > 0) playerPowerUps.speedBoost--;
+                if (playerPowerUps.jumpBoost > 0) playerPowerUps.jumpBoost--;
+                if (playerPowerUps.shield > 0) playerPowerUps.shield--;
+                
+                // Keep player in bounds (updated for 1200px width)
+                if (player.x < 0) player.x = 0;
+                if (player.x > 1168) player.x = 1168;
+                
+                // Update moving platforms
+                for (let platform of platforms) {
+                    if (platform.type === 'moving') {
+                        platform.y += platform.speed * platform.direction;
+                        if (platform.y <= platform.endY || platform.y >= platform.startY) {
+                            platform.direction *= -1;
+                        }
+                    }
+                }
+                
+                // Update enemies
+                for (let enemy of enemies) {
+                    if (enemy.type === 'patrol') {
+                        enemy.x += enemy.vx;
+                        if (enemy.x <= enemy.startX || enemy.x >= enemy.endX) {
+                            enemy.vx *= -1;
+                        }
+                    } else if (enemy.type === 'jumping') {
+                        enemy.jumpTimer++;
+                        if (enemy.jumpTimer > 120) {
+                            enemy.vy = -8;
+                            enemy.jumpTimer = 0;
+                        }
+                        enemy.y += enemy.vy;
+                        enemy.vy += 0.5;
+                        
+                        // Ground collision for jumping enemies
+                        if (enemy.y > 536) {
+                            enemy.y = 536;
+                            enemy.vy = 0;
+                        }
+                    }
+                }
+                
+                // Platform collision
+                let onGround = false;
+                for (let i = platforms.length - 1; i >= 0; i--) {
+                    let platform = platforms[i];
+                    if (checkCollision(player, platform)) {
+                        if (player.vy > 0 && player.y < platform.y) {
+                            player.y = platform.y - player.height;
+                            player.vy = 0;
+                            onGround = true;
+                            
+                            // Handle different platform types
+                            if (platform.type === 'bouncy') {
+                                player.vy = -18;
+                            } else if (platform.type === 'breakable') {
+                                platform.health--;
+                                if (platform.health <= 0) {
+                                    platforms.splice(i, 1);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Enemy collision
+                for (let enemy of enemies) {
+                    if (checkCollision(player, enemy)) {
+                        if (player.vy > 0 && player.y < enemy.y && playerPowerUps.shield === 0) {
+                            // Jump on enemy
+                            enemies.splice(enemies.indexOf(enemy), 1);
+                            player.vy = -10;
+                            score += 50;
+                        } else if (player.invulnerable === 0 && playerPowerUps.shield === 0) {
+                            // Take damage
+                            player.health--;
+                            player.invulnerable = 60; // 1 second invulnerability
+                            if (player.health <= 0) {
+                                // Game over - reset
+                                player.x = 100;
+                                player.y = 300;
+                                player.vx = 0;
+                                player.vy = 0;
+                                player.health = 3;
+                                score = Math.max(0, score - 100);
+                            }
+                        }
+                    }
+                }
+                
+                // Coin collection
+                for (let coin of coins) {
+                    if (!coin.collected && checkCollision(player, coin)) {
+                        coin.collected = true;
+                        score += 10;
+                    }
+                }
+                
+                // Power-up collection
+                for (let powerUp of powerUps) {
+                    if (!powerUp.collected && checkCollision(player, powerUp)) {
+                        powerUp.collected = true;
+                        switch (powerUp.type) {
+                            case 'health':
+                                player.health = Math.min(5, player.health + 1);
+                                break;
+                            case 'speed':
+                                playerPowerUps.speedBoost = 300; // 5 seconds
+                                break;
+                            case 'jump':
+                                playerPowerUps.jumpBoost = 300; // 5 seconds
+                                break;
+                            case 'shield':
+                                playerPowerUps.shield = 180; // 3 seconds
+                                break;
+                        }
+                        score += 25;
+                    }
+                }
+                
+                // Reset if fallen off
+                if (player.y > 600) {
+                    player.x = 100;
+                    player.y = 300;
+                    player.vx = 0;
+                    player.vy = 0;
+                    player.health--;
+                    if (player.health <= 0) {
+                        player.health = 3;
+                        score = Math.max(0, score - 100);
+                    }
+                }
+                
+                // Draw platforms
+                ctx.fillStyle = '#228B22';
+                ctx.fillRect(0, 560, 1200, 40);
+                
+                ctx.fillStyle = '#8B4513';
+                for (let platform of platforms) {
+                    if (platform.type === 'normal') {
+                        ctx.fillStyle = '#8B4513';
+                    } else if (platform.type === 'moving') {
+                        ctx.fillStyle = '#4169E1';
+                    } else if (platform.type === 'breakable') {
+                        ctx.fillStyle = '#CD853F';
+                    } else if (platform.type === 'bouncy') {
+                        ctx.fillStyle = '#FF69B4';
+                    }
+                    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                }
+                
+                // Draw enemies
+                ctx.fillStyle = '#FF0000';
+                for (let enemy of enemies) {
+                    ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+                }
+                
+                // Draw coins
+                ctx.fillStyle = '#FFD700';
+                for (let coin of coins) {
+                    if (!coin.collected) {
+                        ctx.fillRect(coin.x, coin.y, coin.width, coin.height);
+                    }
+                }
+                
+                // Draw power-ups
+                for (let powerUp of powerUps) {
+                    if (!powerUp.collected) {
+                        switch (powerUp.type) {
+                            case 'health':
+                                ctx.fillStyle = '#00FF00';
+                                break;
+                            case 'speed':
+                                ctx.fillStyle = '#00FFFF';
+                                break;
+                            case 'jump':
+                                ctx.fillStyle = '#FFFF00';
+                                break;
+                            case 'shield':
+                                ctx.fillStyle = '#FF00FF';
+                                break;
+                        }
+                        ctx.fillRect(powerUp.x, powerUp.y, powerUp.width, powerUp.height);
+                    }
+                }
+                
+                // Draw player (with invulnerability flash)
+                if (player.invulnerable === 0 || Math.floor(player.invulnerable / 10) % 2 === 0) {
+                    if (playerPowerUps.shield > 0) {
+                        ctx.fillStyle = '#00FFFF';
+                    } else {
+                        ctx.fillStyle = '#FF0000';
+                    }
+                    ctx.fillRect(player.x, player.y, player.width, player.height);
+                }
+                
+                // Draw UI
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = '24px Arial';
+                ctx.fillText(`Score: ${score}`, 20, 40);
+                ctx.fillText(`Health: ${player.health}`, 20, 70);
+                
+                // Draw power-up indicators
+                let powerUpY = 100;
+                if (playerPowerUps.speedBoost > 0) {
+                    ctx.fillStyle = '#00FFFF';
+                    ctx.fillText(`Speed Boost: ${Math.ceil(playerPowerUps.speedBoost / 60)}s`, 20, powerUpY);
+                    powerUpY += 30;
+                }
+                if (playerPowerUps.jumpBoost > 0) {
+                    ctx.fillStyle = '#FFFF00';
+                    ctx.fillText(`Jump Boost: ${Math.ceil(playerPowerUps.jumpBoost / 60)}s`, 20, powerUpY);
+                    powerUpY += 30;
+                }
+                if (playerPowerUps.shield > 0) {
+                    ctx.fillStyle = '#FF00FF';
+                    ctx.fillText(`Shield: ${Math.ceil(playerPowerUps.shield / 60)}s`, 20, powerUpY);
+                }
+                
+                requestAnimationFrame(gameLoop);
+            }
+            
+            gameLoop();
+        }
+        
+        // Try to load Kaboom.js, fallback to simple game
+        if (typeof kaboom !== 'undefined') {
+            try {
+                const k = kaboom({
+                    global: true,
+                    width: 1200,
+                    height: 600,
+                    canvas: document.querySelector("#game-container"),
+                    background: [135, 206, 235],
+                    debug: false,
+                    fullscreen: false,
+                    crisp: true
+                });
+
+                // COMPLEX: Multiple scenes
+                scene("menu", () => {
+                    add([
+                        text("SUPER MARIO BROWSER GAME", { size: 48 }),
+                        pos(center()),
+                        color(255, 255, 255),
+                        origin("center")
+                    ]);
+
+                    add([
+                        text("Press SPACE to start", { size: 24 }),
+                        pos(center().add(0, 100)),
+                        color(255, 255, 255),
+                        origin("center")
+                    ]);
+
+                    add([
+                        text("Controls: A/D to move, SPACE/W to jump", { size: 16 }),
+                        pos(center().add(0, 150)),
+                        color(200, 200, 200),
+                        origin("center")
+                    ]);
+
+                    onKeyPress("space", () => {
+                        go("game");
+                    });
+                });
+
+                // COMPLEX: Game over scene
+                scene("gameOver", () => {
+                    add([
+                        text("GAME OVER", { size: 64 }),
+                        pos(center()),
+                        color(255, 0, 0),
+                        origin("center")
+                    ]);
+
+                    add([
+                        text("Press R to restart", { size: 24 }),
+                        pos(center().add(0, 100)),
+                        color(255, 255, 255),
+                        origin("center")
+                    ]);
+
+                    onKeyPress("r", () => {
+                        go("game");
+                    });
+                });
+
+                // COMPLEX: Victory scene
+                scene("victory", () => {
+                    add([
+                        text("VICTORY!", { size: 64 }),
+                        pos(center()),
+                        color(255, 255, 0),
+                        origin("center")
+                    ]);
+
+                    add([
+                        text("All coins collected!", { size: 24 }),
+                        pos(center().add(0, 100)),
+                        color(255, 255, 255),
+                        origin("center")
+                    ]);
+
+                    onKeyPress("r", () => {
+                        go("game");
+                    });
+                });
+
+                // COMPLEX: Main game scene with advanced features
+                scene("game", () => {
+                    // COMPLEX: Particle system
+                    function createParticle(pos, color) {
+                        add([
+                            circle(2),
+                            pos(pos),
+                            color(color),
+                            lifespan(1),
+                            move(rand(-100, 100), rand(-100, 100)),
+                            scale(rand(0.5, 2)),
+                            opacity(1),
+                            "particle"
+                        ]);
+                    }
+
+                    // COMPLEX: Screen shake effect
+                    let shakeTimer = 0;
+                    function screenShake(intensity = 5, duration = 0.5) {
+                        shakeTimer = duration;
+                        shake(intensity);
+                    }
+
+                    // COMPLEX: Advanced player with more components
+                    const player = add([
+                        rect(32, 32),
+                        pos(100, 300),
+                        color(255, 0, 0),
+                        body(),
+                        health(3),
+                        state("idle", ["idle", "running", "jumping", "falling"]),
+                        timer(),
+                        "player"
+                    ]);
+
+                    // COMPLEX: Player animations and states
+                    player.onStateEnter("idle", () => {
+                        player.color = rgb(255, 0, 0);
+                    });
+
+                    player.onStateEnter("running", () => {
+                        player.color = rgb(255, 100, 100);
+                    });
+
+                    player.onStateEnter("jumping", () => {
+                        player.color = rgb(255, 0, 100);
+                    });
+
+                    player.onStateEnter("falling", () => {
+                        player.color = rgb(255, 0, 50);
+                    });
+
+                    // COMPLEX: Camera follow with smooth movement
+                    const cam = add([
+                        pos(0, 0),
+                        "camera"
+                    ]);
+
+                    cam.onUpdate(() => {
+                        const targetX = player.pos.x - width() / 2;
+                        const targetY = player.pos.y - height() / 2;
+                        cam.pos.x = lerp(cam.pos.x, targetX, 0.1);
+                        cam.pos.y = lerp(cam.pos.y, targetY, 0.1);
+                        camPos(cam.pos);
+                    });
+
+                    add([
+                        rect(1200, 40),
+                        pos(0, 560),
+                        color(34, 139, 34),
+                        body({ isStatic: true }),
+                        "platform",
+                        "ground"
+                    ]);
+
+                    add([
+                        rect(120, 20),
+                        pos(200, 450),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(120, 20),
+                        pos(400, 350),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(120, 20),
+                        pos(600, 250),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(120, 20),
+                        pos(300, 150),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    // Additional platforms for more exploration
+                    add([
+                        rect(100, 20),
+                        pos(50, 400),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(100, 20),
+                        pos(650, 400),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(100, 20),
+                        pos(150, 300),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(100, 20),
+                        pos(550, 300),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(100, 20),
+                        pos(250, 200),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(100, 20),
+                        pos(450, 200),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(100, 20),
+                        pos(350, 100),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(100, 20),
+                        pos(150, 50),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(100, 20),
+                        pos(550, 50),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    // Floating platforms for advanced jumping
+                    add([
+                        rect(80, 20),
+                        pos(0, 350),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(80, 20),
+                        pos(720, 350),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(80, 20),
+                        pos(100, 250),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(80, 20),
+                        pos(620, 250),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(80, 20),
+                        pos(200, 150),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(80, 20),
+                        pos(520, 150),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(80, 20),
+                        pos(300, 50),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(80, 20),
+                        pos(420, 50),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    // High platforms for challenge
+                    add([
+                        rect(60, 20),
+                        pos(50, 100),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(60, 20),
+                        pos(690, 100),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(60, 20),
+                        pos(200, 0),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(60, 20),
+                        pos(540, 0),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    // NEW: Extended platforms to the right
+                    add([
+                        rect(120, 20),
+                        pos(800, 450),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(120, 20),
+                        pos(1000, 350),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(120, 20),
+                        pos(900, 250),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(120, 20),
+                        pos(1100, 150),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(100, 20),
+                        pos(850, 100),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(100, 20),
+                        pos(1050, 50),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(80, 20),
+                        pos(950, 0),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    // Additional right-side platforms
+                    add([
+                        rect(100, 20),
+                        pos(750, 400),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(100, 20),
+                        pos(950, 400),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(100, 20),
+                        pos(850, 300),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(100, 20),
+                        pos(1050, 300),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(100, 20),
+                        pos(800, 200),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(100, 20),
+                        pos(1000, 200),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(100, 20),
+                        pos(900, 100),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(100, 20),
+                        pos(1100, 100),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    // Floating platforms on the right
+                    add([
+                        rect(80, 20),
+                        pos(780, 350),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(80, 20),
+                        pos(980, 350),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(80, 20),
+                        pos(880, 250),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(80, 20),
+                        pos(1080, 250),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(80, 20),
+                        pos(830, 150),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(80, 20),
+                        pos(1030, 150),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(80, 20),
+                        pos(930, 50),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(80, 20),
+                        pos(1130, 50),
+                        color(139, 69, 19),
+                        body({ isStatic: true }),
+                        "platform"
+                    ]);
+
+                    add([
+                        rect(20, 20),
+                        pos(250, 420),
+                        color(255, 255, 0),
+                        "coin"
+                    ]);
+
+                    add([
+                        rect(20, 20),
+                        pos(450, 320),
+                        color(255, 255, 0),
+                        "coin"
+                    ]);
+
+                    add([
+                        rect(20, 20),
+                        pos(650, 220),
+                        color(255, 255, 0),
+                        "coin"
+                    ]);
+
+                    // Additional coins scattered around
+                    add([
+                        rect(20, 20),
+                        pos(100, 370),
+                        color(255, 255, 0),
+                        "coin"
+                    ]);
+
+                    add([
+                        rect(20, 20),
+                        pos(700, 370),
+                        color(255, 255, 0),
+                        "coin"
+                    ]);
+
+                    add([
+                        rect(20, 20),
+                        pos(200, 270),
+                        color(255, 255, 0),
+                        "coin"
+                    ]);
+
+                    add([
+                        rect(20, 20),
+                        pos(600, 270),
+                        color(255, 255, 0),
+                        "coin"
+                    ]);
+
+                    add([
+                        rect(20, 20),
+                        pos(300, 170),
+                        color(255, 255, 0),
+                        "coin"
+                    ]);
+
+                    add([
+                        rect(20, 20),
+                        pos(500, 170),
+                        color(255, 255, 0),
+                        "coin"
+                    ]);
+
+                    add([
+                        rect(20, 20),
+                        pos(400, 70),
+                        color(255, 255, 0),
+                        "coin"
+                    ]);
+
+                    add([
+                        rect(20, 20),
+                        pos(200, 20),
+                        color(255, 255, 0),
+                        "coin"
+                    ]);
+
+                    add([
+                        rect(20, 20),
+                        pos(580, 20),
+                        color(255, 255, 0),
+                        "coin"
+                    ]);
+
+                    add([
+                        rect(20, 20),
+                        pos(80, 70),
+                        color(255, 255, 0),
+                        "coin"
+                    ]);
+
+                    add([
+                        rect(20, 20),
+                        pos(720, 70),
+                        color(255, 255, 0),
+                        "coin"
+                    ]);
+
+                    // COMPLEX: Game state management
+                    let score = 0;
+                    let coinsCollected = 0;
+                    let totalCoins = 30;
+                    let gameTime = 0;
+                    let level = 1;
+                    let bossDefeated = false;
+
+                    const scoreText = add([
+                        text("Score: 0"),
+                        pos(20, 20),
+                        color(255, 255, 255),
+                        { size: 24 },
+                        fixed()
+                    ]);
+
+                    const healthText = add([
+                        text("Health: 3"),
+                        pos(20, 50),
+                        color(255, 255, 255),
+                        { size: 24 },
+                        fixed()
+                    ]);
+
+                    const timeText = add([
+                        text("Time: 0:00"),
+                        pos(20, 80),
+                        color(255, 255, 255),
+                        { size: 24 },
+                        fixed()
+                    ]);
+
+                    const levelText = add([
+                        text("Level: 1"),
+                        pos(20, 110),
+                        color(255, 255, 255),
+                        { size: 24 },
+                        fixed()
+                    ]);
+
+                    // COMPLEX: Advanced power-up states
+                    let playerPowerUps = {
+                        speedBoost: 0,
+                        jumpBoost: 0,
+                        shield: 0,
+                        doubleJump: 0,
+                        firePower: 0,
+                        canDoubleJump: false
+                    };
+
+                    // COMPLEX: Advanced input handling with power-ups
+                    const SPEED = 200;
+                    const JUMP_FORCE = 400;
+
+                    onKeyDown("a", () => {
+                        let speed = SPEED;
+                        if (playerPowerUps.speedBoost > 0) speed = SPEED * 1.6;
+                        player.move(-speed, 0);
+                        if (player.state === "idle") player.enterState("running");
+                    });
+
+                    onKeyDown("d", () => {
+                        let speed = SPEED;
+                        if (playerPowerUps.speedBoost > 0) speed = SPEED * 1.6;
+                        player.move(speed, 0);
+                        if (player.state === "idle") player.enterState("running");
+                    });
+
+                    onKeyDown("left", () => {
+                        let speed = SPEED;
+                        if (playerPowerUps.speedBoost > 0) speed = SPEED * 1.6;
+                        player.move(-speed, 0);
+                        if (player.state === "idle") player.enterState("running");
+                    });
+
+                    onKeyDown("right", () => {
+                        let speed = SPEED;
+                        if (playerPowerUps.speedBoost > 0) speed = SPEED * 1.6;
+                        player.move(speed, 0);
+                        if (player.state === "idle") player.enterState("running");
+                    });
+
+                    onKeyPress("w", () => {
+                        if (player.isGrounded()) {
+                            let jumpForce = JUMP_FORCE;
+                            if (playerPowerUps.jumpBoost > 0) jumpForce = JUMP_FORCE * 1.3;
+                            player.jump(jumpForce);
+                            player.enterState("jumping");
+                            playerPowerUps.canDoubleJump = true;
+                        } else if (playerPowerUps.doubleJump > 0 && playerPowerUps.canDoubleJump) {
+                            player.jump(JUMP_FORCE * 0.8);
+                            playerPowerUps.canDoubleJump = false;
+                            createParticle(player.pos, rgb(255, 215, 0));
+                        }
+                    });
+
+                    onKeyPress("space", () => {
+                        if (player.isGrounded()) {
+                            let jumpForce = JUMP_FORCE;
+                            if (playerPowerUps.jumpBoost > 0) jumpForce = JUMP_FORCE * 1.3;
+                            player.jump(jumpForce);
+                            player.enterState("jumping");
+                            playerPowerUps.canDoubleJump = true;
+                        } else if (playerPowerUps.doubleJump > 0 && playerPowerUps.canDoubleJump) {
+                            player.jump(JUMP_FORCE * 0.8);
+                            playerPowerUps.canDoubleJump = false;
+                            createParticle(player.pos, rgb(255, 215, 0));
+                        }
+                    });
+
+                    // COMPLEX: Fire power attack
+                    onKeyPress("f", () => {
+                        if (playerPowerUps.firePower > 0) {
+                            const fireball = add([
+                                circle(8),
+                                pos(player.pos.add(16, 16)),
+                                color(255, 69, 0),
+                                move(player.pos.x > 600 ? -400 : 400, 0),
+                                lifespan(2),
+                                "fireball"
+                            ]);
+                            createParticle(player.pos, rgb(255, 69, 0));
+                        }
+                    });
+
+                    // COMPLEX: Advanced platform behaviors
+                    onUpdate(() => {
+                        // Moving platforms with different patterns
+                        every("moving-platform", (platform) => {
+                            if (platform.pattern === "vertical") {
+                                platform.pos.y += platform.speed * platform.direction;
+                                if (platform.pos.y <= platform.endY || platform.pos.y >= platform.startY) {
+                                    platform.direction *= -1;
+                                }
+                            } else if (platform.pattern === "horizontal") {
+                                platform.pos.x += platform.speed * platform.direction;
+                                if (platform.pos.x <= platform.startX || platform.pos.x >= platform.endX) {
+                                    platform.direction *= -1;
+                                }
+                            }
+                        });
+
+                        // Rotating platforms
+                        every("rotating-platform", (platform) => {
+                            platform.angle += platform.rotationSpeed;
+                        });
+
+                        // Update game time
+                        gameTime += dt();
+                        const minutes = Math.floor(gameTime / 60);
+                        const seconds = Math.floor(gameTime % 60);
+                        timeText.text = `Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                        // Update power-up timers
+                        if (playerPowerUps.speedBoost > 0) playerPowerUps.speedBoost--;
+                        if (playerPowerUps.jumpBoost > 0) playerPowerUps.jumpBoost--;
+                        if (playerPowerUps.shield > 0) playerPowerUps.shield--;
+                        if (playerPowerUps.doubleJump > 0) playerPowerUps.doubleJump--;
+                        if (playerPowerUps.firePower > 0) playerPowerUps.firePower--;
+
+                        // Update player state based on physics
+                        if (!player.isGrounded()) {
+                            if (player.vy > 0) {
+                                player.enterState("falling");
+                            } else {
+                                player.enterState("jumping");
+                            }
+                        } else {
+                            if (player.vy === 0) {
+                                player.enterState("idle");
+                            }
+                        }
+
+                        // Update shake effect
+                        if (shakeTimer > 0) {
+                            shakeTimer -= dt();
+                            if (shakeTimer <= 0) {
+                                shake(0);
+                            }
+                        }
+                    });
+
+                    // COMPLEX: Advanced enemy AI
+                    onUpdate(() => {
+                        every("patrol-enemy", (enemy) => {
+                            const distanceToPlayer = player.pos.distance(enemy.pos);
+                            
+                            if (enemy.state === "patrol") {
+                                enemy.move(enemy.vx, 0);
+                                if (enemy.pos.x <= enemy.startX || enemy.pos.x >= enemy.endX) {
+                                    enemy.vx *= -1;
+                                }
+                                
+                                // Switch to chase if player is detected
+                                if (distanceToPlayer < enemy.detectionRange) {
+                                    enemy.enterState("chase");
+                                }
+                            } else if (enemy.state === "chase") {
+                                const direction = player.pos.x > enemy.pos.x ? 1 : -1;
+                                enemy.move(enemy.vx * 1.5 * direction, 0);
+                                
+                                // Switch back to patrol if player is too far
+                                if (distanceToPlayer > enemy.detectionRange * 1.5) {
+                                    enemy.enterState("patrol");
+                                }
+                                
+                                // Attack if close enough
+                                if (distanceToPlayer < enemy.attackRange) {
+                                    enemy.enterState("attack");
+                                }
+                            } else if (enemy.state === "attack") {
+                                // Attack behavior
+                                if (distanceToPlayer > enemy.attackRange) {
+                                    enemy.enterState("chase");
+                                }
+                            }
+                        });
+
+                        // Flying enemy AI
+                        every("flying-enemy", (enemy) => {
+                            enemy.diveTimer++;
+                            
+                            if (enemy.state === "fly") {
+                                // Fly in a pattern
+                                enemy.pos.y = enemy.flyHeight + Math.sin(gameTime * 2) * 30;
+                                
+                                // Dive attack when player is below
+                                if (player.pos.y > enemy.pos.y && enemy.diveTimer > 120) {
+                                    enemy.enterState("dive");
+                                    enemy.diveTimer = 0;
+                                }
+                            } else if (enemy.state === "dive") {
+                                // Dive towards player
+                                enemy.move(0, enemy.diveSpeed);
+                                
+                                // Return to flying if hit ground or player
+                                if (enemy.pos.y > 550) {
+                                    enemy.enterState("fly");
+                                    enemy.pos.y = enemy.flyHeight;
+                                }
+                            }
+                        });
+
+                        // Boss enemy AI
+                        every("boss-enemy", (enemy) => {
+                            if (enemy.state === "idle") {
+                                // Idle behavior
+                                if (player.pos.distance(enemy.pos) < 200) {
+                                    enemy.enterState("attack");
+                                }
+                            } else if (enemy.state === "attack") {
+                                enemy.attackCooldown++;
+                                
+                                // Attack pattern
+                                if (enemy.attackCooldown > 60) {
+                                    // Create projectiles
+                                    const projectile = add([
+                                        circle(6),
+                                        pos(enemy.pos.add(24, 24)),
+                                        color(255, 0, 0),
+                                        move((player.pos.x - enemy.pos.x) * 0.1, (player.pos.y - enemy.pos.y) * 0.1),
+                                        lifespan(3),
+                                        "boss-projectile"
+                                    ]);
+                                    
+                                    enemy.attackCooldown = 0;
+                                    
+                                    // Enter rage mode if health is low
+                                    if (enemy.hp() < enemy.rageThreshold) {
+                                        enemy.enterState("rage");
+                                    }
+                                }
+                                
+                                if (player.pos.distance(enemy.pos) > 250) {
+                                    enemy.enterState("idle");
+                                }
+                            } else if (enemy.state === "rage") {
+                                // Rage mode - faster attacks
+                                enemy.attackCooldown++;
+                                
+                                if (enemy.attackCooldown > 30) {
+                                    // Multiple projectiles
+                                    for (let i = 0; i < 3; i++) {
+                                        const angle = (i - 1) * 0.5;
+                                        const projectile = add([
+                                            circle(8),
+                                            pos(enemy.pos.add(24, 24)),
+                                            color(255, 100, 0),
+                                            move(Math.cos(angle) * 200, Math.sin(angle) * 200),
+                                            lifespan(2),
+                                            "boss-projectile"
+                                        ]);
+                                    }
+                                    
+                                    enemy.attackCooldown = 0;
+                                }
+                            }
+                        });
+                    });
+
+                    // COMPLEX: Advanced collision systems
+                    onCollide("player", "teleport-platform", (player, platform) => {
+                        if (player.isGrounded()) {
+                            player.pos = vec2(platform.targetX, platform.targetY);
+                            createParticle(player.pos, rgb(128, 0, 128));
+                            screenShake(2, 0.1);
+                        }
+                    });
+
+                    onCollide("player", "bouncy-platform", (player, platform) => {
+                        if (player.isGrounded()) {
+                            player.jump(720);
+                            createParticle(player.pos, rgb(255, 105, 180));
+                        }
+                    });
+
+                    onCollide("player", "breakable-platform", (player, platform) => {
+                        if (player.isGrounded()) {
+                            platform.health--;
+                            createParticle(player.pos, rgb(205, 133, 63));
+                            if (platform.health <= 0) {
+                                destroy(platform);
+                                screenShake(3, 0.2);
+                            }
+                        }
+                    });
+
+                    // COMPLEX: Advanced enemy interactions
+                    onCollide("player", "patrol-enemy", (player, enemy) => {
+                        if (player.vy > 0 && player.pos.y < enemy.pos.y && playerPowerUps.shield === 0) {
+                            // Jump on enemy
+                            enemy.hurt(1);
+                            if (enemy.hp() <= 0) {
+                                destroy(enemy);
+                                score += 50;
+                                createParticle(enemy.pos, rgb(255, 0, 0));
+                            }
+                            player.jump(400);
+                            screenShake(2, 0.1);
+                        } else if (playerPowerUps.shield === 0) {
+                            // Take damage
+                            player.hurt(1);
+                            screenShake(5, 0.3);
+                            if (player.hp() <= 0) {
+                                go("gameOver");
+                            }
+                        }
+                    });
+
+                    onCollide("player", "flying-enemy", (player, enemy) => {
+                        if (player.vy > 0 && player.pos.y < enemy.pos.y && playerPowerUps.shield === 0) {
+                            // Jump on enemy
+                            destroy(enemy);
+                            score += 75;
+                            createParticle(enemy.pos, rgb(255, 20, 147));
+                            player.jump(400);
+                            screenShake(2, 0.1);
+                        } else if (playerPowerUps.shield === 0) {
+                            // Take damage
+                            player.hurt(1);
+                            screenShake(5, 0.3);
+                            if (player.hp() <= 0) {
+                                go("gameOver");
+                            }
+                        }
+                    });
+
+                    onCollide("player", "boss-enemy", (player, enemy) => {
+                        if (player.vy > 0 && player.pos.y < enemy.pos.y && playerPowerUps.shield === 0) {
+                            // Jump on boss
+                            enemy.hurt(1);
+                            score += 100;
+                            createParticle(enemy.pos, rgb(139, 0, 0));
+                            player.jump(400);
+                            screenShake(4, 0.4);
+                            
+                            if (enemy.hp() <= 0) {
+                                destroy(enemy);
+                                bossDefeated = true;
+                                score += 500;
+                                screenShake(8, 1.0);
+                                // Victory celebration
+                                for (let i = 0; i < 20; i++) {
+                                    wait(i * 0.1, () => {
+                                        createParticle(vec2(rand(0, 1200), rand(0, 600)), rgb(255, 255, 0));
+                                    });
+                                }
+                            }
+                        } else if (playerPowerUps.shield === 0) {
+                            // Take damage
+                            player.hurt(2);
+                            screenShake(6, 0.4);
+                            if (player.hp() <= 0) {
+                                go("gameOver");
+                            }
+                        }
+                    });
+
+                    // COMPLEX: Projectile collisions
+                    onCollide("player", "boss-projectile", (player, projectile) => {
+                        if (playerPowerUps.shield === 0) {
+                            player.hurt(1);
+                            destroy(projectile);
+                            screenShake(3, 0.2);
+                            if (player.hp() <= 0) {
+                                go("gameOver");
+                            }
+                        } else {
+                            destroy(projectile);
+                        }
+                    });
+
+                    onCollide("fireball", "enemy", (fireball, enemy) => {
+                        enemy.hurt(1);
+                        destroy(fireball);
+                        createParticle(enemy.pos, rgb(255, 69, 0));
+                        if (enemy.hp() <= 0) {
+                            destroy(enemy);
+                            score += 25;
+                        }
+                    });
+
+                    // COMPLEX: Advanced power-up collection with effects
+                    onCollide("player", "powerup", (player, powerup) => {
+                        powerup.effect();
+                        score += 25;
+                        destroy(powerup);
+                    });
+
+                    onCollide("player", "coin", (player, coin) => {
+                        destroy(coin);
+                        score += 10;
+                        coinsCollected++;
+                        createParticle(coin.pos, rgb(255, 255, 0));
+                        
+                        // Check for victory
+                        if (coinsCollected >= totalCoins && bossDefeated) {
+                            go("victory");
+                        }
+                    });
+
+                    // COMPLEX: UI updates
+                    onUpdate(() => {
+                        scoreText.text = `Score: ${score}`;
+                        healthText.text = `Health: ${player.hp()}`;
+                        levelText.text = `Level: ${level}`;
+                        
+                        // Power-up indicators
+                        let powerUpY = 140;
+                        if (playerPowerUps.speedBoost > 0) {
+                            add([
+                                text(`Speed Boost: ${Math.ceil(playerPowerUps.speedBoost / 60)}s`),
+                                pos(20, powerUpY),
+                                color(0, 255, 255),
+                                { size: 16 },
+                                fixed(),
+                                lifespan(0.1)
+                            ]);
+                            powerUpY += 20;
+                        }
+                        if (playerPowerUps.jumpBoost > 0) {
+                            add([
+                                text(`Jump Boost: ${Math.ceil(playerPowerUps.jumpBoost / 60)}s`),
+                                pos(20, powerUpY),
+                                color(255, 255, 0),
+                                { size: 16 },
+                                fixed(),
+                                lifespan(0.1)
+                            ]);
+                            powerUpY += 20;
+                        }
+                        if (playerPowerUps.shield > 0) {
+                            add([
+                                text(`Shield: ${Math.ceil(playerPowerUps.shield / 60)}s`),
+                                pos(20, powerUpY),
+                                color(255, 0, 255),
+                                { size: 16 },
+                                fixed(),
+                                lifespan(0.1)
+                            ]);
+                            powerUpY += 20;
+                        }
+                        if (playerPowerUps.doubleJump > 0) {
+                            add([
+                                text(`Double Jump: ${Math.ceil(playerPowerUps.doubleJump / 60)}s`),
+                                pos(20, powerUpY),
+                                color(255, 215, 0),
+                                { size: 16 },
+                                fixed(),
+                                lifespan(0.1)
+                            ]);
+                            powerUpY += 20;
+                        }
+                        if (playerPowerUps.firePower > 0) {
+                            add([
+                                text(`Fire Power: ${Math.ceil(playerPowerUps.firePower / 60)}s`),
+                                pos(20, powerUpY),
+                                color(255, 69, 0),
+                                { size: 16 },
+                                fixed(),
+                                lifespan(0.1)
+                            ]);
+                        }
+                    });
+
+                    // COMPLEX: Player boundaries and fall detection
+                    player.onUpdate(() => {
+                        if (player.pos.x < 0) player.pos.x = 0;
+                        if (player.pos.x > 1168) player.pos.x = 1168;
+                        
+                        if (player.pos.y > 600) {
+                            player.hurt(1);
+                            player.pos = vec2(100, 300);
+                            if (player.hp() <= 0) {
+                                go("gameOver");
+                            }
+                        }
+                    });
+
+                    // COMPLEX: Coin rotation and effects
+                    onUpdate(() => {
+                        every("coin", (coin) => {
+                            coin.angle += 2;
+                        });
+                    });
+
+                    // COMPLEX: Particle system cleanup
+                    onUpdate(() => {
+                        every("particle", (particle) => {
+                            particle.opacity -= 0.02;
+                            particle.scale.x -= 0.01;
+                            particle.scale.y -= 0.01;
+                        });
+                    });
+
+                    // COMPLEX: Level progression
+                    onUpdate(() => {
+                        if (coinsCollected >= totalCoins * 0.5 && level === 1) {
+                            level = 2;
+                            // Spawn more enemies
+                            add([
+                                rect(24, 24),
+                                pos(800, 520),
+                                color(255, 0, 0),
+                                body(),
+                                health(1),
+                                state("patrol", ["patrol", "chase"]),
+                                "enemy",
+                                "patrol-enemy",
+                                { 
+                                    type: 'patrol', 
+                                    startX: 750, 
+                                    endX: 950, 
+                                    vx: -1.5,
+                                    detectionRange: 100
+                                }
+                            ]);
+                        }
+                    });
+
+                });
+
+                // Start with menu scene
+                go("menu");
+
+            } catch (error) {
+                console.error("Kaboom error:", error);
+                createSimpleGame();
+            }
+        } else {
+            // Kaboom not loaded, use simple game
+            createSimpleGame();
+        }
+    </script>
+</body>
+</html> 
