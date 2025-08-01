@@ -9,7 +9,7 @@
 #Capture a value entered by keyboard and store it in "data".
 #Use "data" as the key of the dictionary to retrieve its value.
 
-dictionary = {"uno":"one", "dos":"two", "tres":"three"}
+""" dictionary = {"uno":"one", "dos":"two", "tres":"three"}
 print (dictionary)
 
 dictionary.update({"cuatro":"four"})
@@ -18,4 +18,15 @@ print (dictionary)
 data = input ("Write a number: ")
 
 value = dictionary[data]
-print (value)
+print (value) """
+
+
+dictionary = {"uno":"one","dos":"two","tres":"three"}
+print (dictionary)
+
+dictionary.update({"cuatro":"four"})
+print(dictionary)
+
+data = input ("Write a number: ")
+value = dictionary[data]
+print ("The value of the number inserted is {}".format(value))

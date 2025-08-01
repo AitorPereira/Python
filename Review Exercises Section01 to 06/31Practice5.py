@@ -6,3 +6,5 @@ def sum_elements(number_list):
     for num in number_list:
         total = num + total
     return total
+
+print(sum_elements([1,2,3,4,5]))

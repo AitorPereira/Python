@@ -6,7 +6,7 @@
 #Create an object car1 from the class Car with the attributes "Opel", "red", "gasoline", "1.6"
 #Execute the function show_characteristics of the object car1
 
-class Car:
+""" class Car:
     def __init__(self,brand,color,fuel,engine_size):
         self.brand = brand
         self.color = color
@@ -18,6 +18,18 @@ class Car:
     
 car1 = Car("Opel","Red","Gasoline","1.6")
 
+car1.show_characteristics() """
+
+
+class Car:
+    def __init__(self, brand, color, fuel, engine_size):
+            self.brand = brand
+            self.color = color
+            self.fuel = fuel
+            self.engine_size = engine_size
+
+    def show_characteristics(self):
+        print("The car's brand is {} in a color {} that uses the fuel {}, and it has a {} engine".format(self.brand,self.color,self.fuel,self.engine_size))
+
+car1 = Car("opel","red","gasoline","1.6")
 car1.show_characteristics()
-
-

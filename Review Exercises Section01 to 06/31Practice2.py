@@ -11,3 +11,5 @@ def validate_sum_100(number1, number2, number3):
         result = "The sum is less than 100"
 
     return result
+
+print(validate_sum_100(4,3,54))

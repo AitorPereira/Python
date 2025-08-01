@@ -10,7 +10,7 @@ string2 = "World"
 newstring = string1 + string2
 print (newstring)
 
-num1 = 4
+num1 = 4  
 num2 = 5
 sum = num1 + num2
 print (sum)

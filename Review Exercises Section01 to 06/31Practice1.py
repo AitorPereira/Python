@@ -13,3 +13,5 @@
 def create_full_name(first_name, last_name1, last_name2):
     full_name = first_name + " " + last_name1 + " " + last_name2
     return full_name
+
+print(create_full_name("Rodrigo","Perez","Hernandez"))

@@ -1,6 +1,6 @@
 #for
 
-colors = ["red","azul","rosa"]
+""" colors = ["red","azul","rosa"]
 for color in colors:
     print (color)
 
@@ -10,9 +10,9 @@ for letter in string:
 
 range(0,8)
 for num in range(8):
-    print (num)
+    print (num) """
 
-for num in range(3,8):
+""" for num in range(3,8):
     print (num)
 
 for num in range(3,8,2):
@@ -22,7 +22,7 @@ for num in range(3,8,2):
 for num in range(10):
     if (num == 5):
         break
-    print (num)
+    print (num) """
 
 #continue to interrumpt the loop´
 for num in range(10):

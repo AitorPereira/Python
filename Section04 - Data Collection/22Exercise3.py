@@ -6,7 +6,7 @@
 #Now display the value of the variable "set"  
 #Verify the data type of the variable "set" using type()
 
-set = {1, 2, 3, 4, 5}
+""" set = {1, 2, 3, 4, 5}
 print (set)
 
 #One option
@@ -23,4 +23,11 @@ print (set)
 set.remove(9)
 print (set)
 
+print (type(set)) """
+
+set = {1,2,3,4,5}
+print (set)
+set.update([6,7,8,9])
+
+set.remove(9)
 print (type(set))

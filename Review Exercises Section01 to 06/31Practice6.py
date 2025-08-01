@@ -8,3 +8,8 @@ class Movie:
         self.director = director
         self.year = year
         
+class1 = Movie("The Dark Knight","Christopher Nolan",2008)
+
+print(class1.title)
+print(class1.director)
+print(class1.year)

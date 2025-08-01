@@ -16,3 +16,10 @@ result = upper + "has a lenght of " + strlength
 print (result)
 
 print (f"{upper} has a lenght of {strlength}")
+
+
+string2 = "This is just an example"
+length2 = len(string2)
+strlength2= str(length2)
+upper2 = string2.upper()
+result2 = upper2 + "has a lenght of " + strlength2 

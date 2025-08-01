@@ -7,7 +7,7 @@
 #Add a new element with "pineapple" and "piña"  
 #Create a loop to display all the elements of the dictionary
 
-dictionary = {"apple":"manzana", "orange":"naranja", "banana":"platano", "lemon":"limon"}
+""" dictionary = {"apple":"manzana", "orange":"naranja", "banana":"platano", "lemon":"limon"}
 
 print (dictionary["orange"])
 dictionary.update({"pineapple":"piña"})
@@ -15,4 +15,11 @@ dictionary.update({"pineapple":"piña"})
 #    print (fruit)
 
 for key, value in dictionary.items():
-    print (f"The fruit {key} is {value} in spanish")
+    print (f"The fruit {key} is {value} in spanish") """
+
+dictionary = {"apple":"manzana","orange":"naranja","banana":"platano","lemon":"limon"}
+value = dictionary["orange"]
+dictionary.update({"pineapple":"piña"})
+
+for key,value in dictionary.items():
+    print ("The fruit {} in Spanish is {}".format(key,value))

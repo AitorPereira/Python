@@ -37,6 +37,14 @@ def sum_prime_numbers(n):
     return total
 
 # Test the function with n = 7
-n = 7
-result = sum_prime_numbers(n)
-print(f"The sum of the prime numbers up to {n} is: {result}")
+n = int(input("Insert a number: "))
+if is_prime(n):
+    print(f"{n} is a prime number")
+    booeleananswer = input ("Would you like to add all the numbers up to the specified number? yes/no ")
+    if booeleananswer == "yes":
+        result = sum_prime_numbers(n)
+        print(f"The sum of the prime numbers up to {n} is: {result}")
+    else:
+        print("Thank you for using the program")
+else:
+    print(f"{n} is not a prime number")

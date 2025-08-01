@@ -4,11 +4,21 @@
 #If the value of "data" is in the values of the "tuple" variable, display "Yes"  
 #If the value of "data" is not in the values of the "tuple" variable, display "No"
 
-tuple = ("Antonio", "Pedro", "Maria")
+""" tuple = ("Antonio", "Pedro", "Maria")
 print (tuple)
 data = input("Insert a name: ")
 if data in tuple:
     print ("Yes")
 
 if data not in tuple:
-    print ("No")
+    print ("No") """
+
+
+
+tuple = ("Antonio","Pedro","Maria")
+print(tuple)
+data = input("Insert a name: ")
+if data in tuple:
+    print ("Yes, it's on the list")
+else:
+    print("It's not on the list") 

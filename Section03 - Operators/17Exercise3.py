@@ -12,7 +12,7 @@ data = input("Insert a number ")
 number = int(data)
 
 if number in numbers:
-    print ("Yes")
+    print ("Yes, it's on the list")
 
 if number not in numbers:
-    print ("No")
+    print ("No, it's not on the list")

@@ -13,5 +13,6 @@
 
 def temp_converter(temperature_celsius):
     temperature_fahrenheit = (temperature_celsius * 9/5) + 32
+    return temperature_fahrenheit
 
-    return temperature_celsius
+print(temp_converter(10))
