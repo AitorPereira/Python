@@ -1,0 +1,4 @@
+([('interface',
+   '/Users/aitor/Documents/Python/Python/Section25 - Advanced Exercises/10 '
+   'Bookstore Management/dist/interface',
+   'EXECUTABLE')],)

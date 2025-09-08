@@ -1,0 +1,33 @@
+# Blackjack Game Rules
+# --------------------
+# - Add your 2 cards to get as close as possible to 21 without going over.
+# - If you go over 21, you lose.
+# - J, Q, and K are worth 10 points.
+# - The "1" (Ace) can be worth either 1 or 11 points (you can choose whichever benefits you most).
+#
+# Dealing:
+# - The dealer gives you 1 face-up card (visible).
+# - The dealer takes 2 cards: 1 face-up (visible) and 1 face-down (hidden).
+# - Then you receive a second face-up card (visible).
+# => You start with 2 visible cards. The dealer has 1 visible and 1 hidden card.
+#
+# Gameplay:
+# - The dealer asks if you want another card.
+#   If you say "yes", you get another face-up card and the dealer asks again.
+#   This continues until you say "no" (stop) or until you go over 21 (lose).
+#
+# Dealer’s turn:
+# - Once you stop, the dealer reveals the hidden card.
+# - If the dealer’s total is less than 17, they must draw another card.
+# - If the dealer has 17 or more, they may continue drawing to try to beat or tie your score.
+#
+# Winning conditions:
+# - You win if your total is <= 21 AND higher than the dealer’s (if dealer hasn’t gone over 21).
+# - If the dealer goes over 21, you win.
+# - If you go over 21, the dealer wins.
+# - If both totals are equal, it’s a tie.
+#
+# Reminder:
+# - The Ace ("1") can count as either 1 or 11, whichever benefits you most.
+
+cards = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]

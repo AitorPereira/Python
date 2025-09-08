@@ -67,29 +67,82 @@ def manage_reservations(operation,details,reservations=None):
     return reservations
 
 
+
 # --------------------
 # 🔄 Test Cases Below
 # --------------------
 
-# Make a reservation
-reservations = manage_reservations("reserve", {
-    "customer": "Aitor Martínez",
-    "room": "101",
-    "date": "2025-09-10"
-}, reservations)
+# # Make a reservation
+# reservations = manage_reservations(
+#     "reserve", {
+#     "customer": "Aitor Martínez",
+#     "room": "101",
+#     "date": "2025-09-10"
+# }, reservations)
 
-# Check availability
-manage_reservations("check", {
-    "room": "101",
-    "date": "2025-09-10"
-}, reservations)
+# # Check availability
+# manage_reservations(
+#     "check", {
+#     "room": "101",
+#     "date": "2025-09-10"
+# }, reservations)
 
-# Cancel reservation
-reservations = manage_reservations("cancel", {
-    "customer": "Aitor Martínez",
-    "room": "101",
-    "date": "2025-09-10"
-}, reservations)
+# # Cancel reservation
+# reservations = manage_reservations(
+#     "cancel", {
+#     "customer": "Aitor Martínez",
+#     "room": "101",
+#     "date": "2025-09-10"
+# }, reservations)
 
-# List all
+# # List all
+# manage_reservations("list", {}, reservations)
+
+
+reservations = []
+
+# 1. Make a reservation
+reservations = manage_reservations("reserve", {"customer": "Pedro Ramirez", "room": "109", "date": "2025-09-10"}, reservations)
+# Expected output:
+# Reservation succesful
+# Details of reservation: {'customer': 'Pedro Ramirez', 'room': '109', 'date': '2025-09-10'}
+
+# 2. Check room availability for the same room and date
+availability = manage_reservations("check", {"room": "109", "date": "2025-09-10"}, reservations)
+print(availability)
+# Expected output:
+# Room 101 is already booked on 2025-09-10
+
+# # 3. Try to make a reservation for a different room and date
+reservations = manage_reservations("reserve", {"customer": "Maria Gomez", "room": "102","date": "2025-09-11"}, reservations)
+# # Expected output:
+# # Reservation succesful
+# # Details of reservation: {'customer': 'Maria Gomez', 'room': '102', 'date': '2025-09-11'}
+
+# # 4. Cancel an existing reservation
+reservations = manage_reservations("cancel", {"customer": "Aitor Martínez","room": "101","date": "2025-09-10"}, reservations)
+# # Expected output:
+# # Reservation Canceled
+
+# # 5. Try to cancel a non-existent reservation
+reservations = manage_reservations("cancel", {"customer": "Non Existent","room": "999","date": "2025-01-01"}, reservations)
+# # Expected output:
+# # Reservation not found
+
+# 6. Check availability for a room and date with no reservations
+availability = manage_reservations("check", {"room": "101", "date": "2025-09-10"}, reservations)
+print(availability)
+# Expected output:
+# Room 101 is available on 2025-09-10
+
+# 7. List all current reservations
 manage_reservations("list", {}, reservations)
+# Expected output:
+# Current Reservations: 
+# {'customer': 'Maria Gomez', 'room': '102', 'date': '2025-09-11'}
+
+# 8. Use invalid operation
+manage_reservations("invalid_op", {}, reservations)
+# Expected output:
+# Invalid operation
+

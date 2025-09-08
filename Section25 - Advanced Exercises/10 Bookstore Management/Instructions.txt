@@ -1,0 +1,60 @@
+# Final Project in Python: CLURANTE Graphical ETEC Inter
+# Application to manage books using a graphical interface and database
+
+# GENERAL REQUIREMENTS:
+# - Create a graphical interface to interact with the books (Techint GUI).
+# - Store the books in a database (SQLite or similar).
+# - Each book will have at least the following fields:
+#   - Title
+#   - Author
+#   - Year
+#   - ISBN
+
+# APPLICATION FUNCTIONALITIES:
+# 1. View books:
+#    - Display all existing books in the database.
+#    - Show the fields: Title, Author, Year, ISBN.
+
+# 2. Add books:
+#    - Allow entering data for a new book.
+#    - "Add" button that saves the book in the database.
+#    - Refresh the view to show the added book.
+
+# 3. Update books:
+#    - Allow modifying the data of an existing book.
+#    - "Update" button that updates the information in the database.
+#    - Refresh the view to show the changes.
+
+# 4. Delete books:
+#    - Allow removing a book from the database.
+#    - "Delete" button that removes the selected book.
+#    - Refresh the view to reflect the deletion.
+
+# 5. Search books:
+#    - Allow searching for books by a specific criterion (e.g., year).
+#    - "Search" button that filters books according to the entered criterion.
+#    - Display only the books that match the search.
+
+# 6. Close the application:
+#    - "Close" button that safely ends the application.
+
+# IMPLEMENTATION STEPS:
+# 1. Set up the database to store the books.
+# 2. Create the graphical interface with buttons:
+#    - View
+#    - Add
+#    - Update
+#    - Delete
+#    - Search
+#    - Close
+# 3. Implement the functionality of each button connecting the GUI with the database.
+# 4. Ensure that the interface refreshes correctly after each operation.
+# 5. Test the application step by step to confirm that:
+#    - Books can be added, updated, deleted, and searched correctly.
+#    - The database remains consistent.
+#    - The graphical interface responds to user actions.
+
+# NOTES:
+# - The implementation will be done in a simple, step-by-step manner.
+# - Tkinter is recommended for the GUI and SQLite for the database, but other libraries can be adapted.
+# - This final project will allow practicing database integration with graphical interfaces in Python.
