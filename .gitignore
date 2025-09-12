@@ -1,43 +1,18 @@
-# Python cache and compiled files
+# Python
 __pycache__/
-*.py[cod]
+*.pyc
 *.pyo
 *.pyd
-
-# Virtual environments
-.venv/
+.Python
 env/
 venv/
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
+.venv/
 *.egg-info/
-.installed.cfg
-*.egg
-*.pyz
-*.pkg
-*.zip
-
-# Logs
-*.log
-
-# OS / Editor junk
 .DS_Store
-Thumbs.db
-.vscode/
 
-# Other auto-generated
-*.toc
-*.plist
-*.icns
+# Cursor / IDE / System
+.cursor/
+.vscode/
+.idea/
+.history/
+node_modules/

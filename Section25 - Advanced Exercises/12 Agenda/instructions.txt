@@ -1,0 +1,87 @@
+📒 Digital Agenda
+
+Create your own Digital Agenda with Python
+
+Context:
+
+You are developing a small console application to store contacts in a digital agenda.
+This agenda will allow you to add, search, and display contacts easily.
+The goal is to simulate a simple version of a phone’s contacts application.
+
+🧩 Your Challenge:
+
+You must create two classes in Python:
+
+1. Contact Class
+	•	Attributes: name, phone, email.
+	•	Special method __str__ to display the contact in a readable way.
+
+2. Agenda Class
+	•	Attribute: a list called contacts that stores Contact objects.
+	•	Methods:
+	•	add_contact(contact) – Adds a contact to the agenda.
+	•	search_contact(name) – Returns a contact if it’s found by name.
+	•	show_contacts() – Displays all stored contacts.
+
+📟 Example of Use (you must also implement this):
+
+Create an interactive console menu that allows the user to:
+
+--- Menu ---
+1. Add contact
+2. Search contact
+3. Show all contacts
+4. Exit
+
+Expected Output:
+
+--- Menu ---
+1. Add contact
+2. Search contact
+3. Show all contacts
+4. Exit
+Select an option (1-4): 1
+Name: Antonio
+Phone: 623456677
+Email: aaa@a.com
+✅ Contact 'Antonio' successfully added.
+ 
+--- Menu ---
+1. Add contact
+2. Search contact
+3. Show all contacts
+4. Exit
+Select an option (1-4): 1
+Name: Maria
+Phone: 654323344
+Email: maria@gmail.com
+✅ Contact 'Maria' successfully added.
+ 
+--- Menu ---
+1. Add contact
+2. Search contact
+3. Show all contacts
+4. Exit
+Select an option (1-4): 2
+Name of the contact to search: Antonio
+🔍 Contact found:
+Name: Antonio, Phone: 623456677, Email: aaa@a.com
+ 
+--- Menu ---
+1. Add contact
+2. Search contact
+3. Show all contacts
+4. Exit
+Select an option (1-4): 3
+ 
+📒 Contact List:
+Name: Antonio, Phone: 623456677, Email: aaa@a.com
+Name: Maria, Phone: 654323344, Email: maria@gmail.com
+ 
+--- Menu ---
+1. Add contact
+2. Search contact
+3. Show all contacts
+4. Exit
+Select an option (1-4): 4
+👋 Goodbye! 

@@ -2,6 +2,8 @@ from tkinter import *
 import database
 from tkinter import messagebox
 
+database.connect()
+
 def pulse_display():
     window_list.delete(0, END)
     books = database.display()
